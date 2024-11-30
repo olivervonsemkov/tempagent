@@ -1,9 +1,18 @@
-FROM python:3.9-slim
+FROM --platform=linux/amd64 node:18-slim
 
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
 
-COPY src/ src/
+# Copy package files first for better caching
+COPY package*.json ./
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY . ./
+
+# Expose the port the app runs on
+EXPOSE 8000
+
+# Start the application
+CMD ["npm", "start"]
